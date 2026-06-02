@@ -4,16 +4,19 @@
 //     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { resolve } from "node:path";
 
 // Build target: Vercel. Nitro emits the Vercel Build Output API spec
 // into `.vercel/output`, which Vercel auto-detects on deploy.
+const root = process.cwd();
+
 export default defineConfig({
   nitro: {
     preset: "vercel",
     output: {
-      dir: ".vercel/output",
-      publicDir: ".vercel/output/static",
-      serverDir: ".vercel/output/functions/__server.func",
+      dir: resolve(root, ".vercel/output"),
+      publicDir: resolve(root, ".vercel/output/static"),
+      serverDir: resolve(root, ".vercel/output/functions/__server.func"),
     },
   },
 });
