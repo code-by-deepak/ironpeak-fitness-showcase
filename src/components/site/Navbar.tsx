@@ -96,6 +96,14 @@ export function Navbar() {
                   {l.label}
                 </a>
               ))}
+              <Link
+                to="/admin"
+                onClick={() => setOpen(false)}
+                className="py-3 text-base uppercase tracking-wider text-foreground border-b border-border/40 flex items-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
               <a
                 href="#pricing"
                 onClick={() => setOpen(false)}
