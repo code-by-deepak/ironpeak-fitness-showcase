@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       free_trial_leads: {
         Row: {
+          contacted: boolean
           created_at: string
           email: string
           goal: string
@@ -25,6 +26,7 @@ export type Database = {
           phone: string
         }
         Insert: {
+          contacted?: boolean
           created_at?: string
           email: string
           goal: string
@@ -34,6 +36,7 @@ export type Database = {
           phone: string
         }
         Update: {
+          contacted?: boolean
           created_at?: string
           email?: string
           goal?: string
