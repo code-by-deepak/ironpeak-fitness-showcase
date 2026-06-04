@@ -1,10 +1,51 @@
 import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SectionHeading } from "./SectionHeading";
+import { supabase } from "@/integrations/supabase/client";
+
+type Status = "idle" | "sending" | "success" | "error";
 
 export function Contact() {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (status === "sending") return;
+    setStatus("sending");
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const payload = {
+      name: String(fd.get("name") ?? "").trim(),
+      phone: String(fd.get("phone") ?? "").trim(),
+      email: String(fd.get("email") ?? "").trim(),
+      goal: String(fd.get("goal") ?? "").trim(),
+      message: String(fd.get("message") ?? "").trim() || null,
+    };
+
+    const { error } = await supabase.from("free_trial_leads").insert(payload);
+
+    if (error) {
+      console.error("free_trial_leads insert failed", error);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 5000);
+      return;
+    }
+
+    form.reset();
+    setStatus("success");
+    setTimeout(() => setStatus("idle"), 6000);
+  }
+
+  const buttonLabel =
+    status === "sending"
+      ? "Sending…"
+      : status === "success"
+        ? "✓ Request received"
+        : "Submit & Start";
+
   return (
     <section id="contact" className="relative py-28">
       <div className="mx-auto max-w-7xl px-6">
@@ -47,15 +88,12 @@ export function Contact() {
           </motion.div>
 
           <motion.form
+            ref={formRef}
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6 }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSent(true);
-              setTimeout(() => setSent(false), 4000);
-            }}
+            onSubmit={handleSubmit}
             className="rounded-2xl border border-border bg-card p-8 space-y-4"
           >
             <h3 className="font-display text-3xl text-foreground">Book Your Free Trial</h3>
@@ -70,7 +108,9 @@ export function Contact() {
             <div>
               <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Goal</label>
               <select
+                name="goal"
                 required
+                defaultValue="Lose Weight"
                 className="mt-1 w-full rounded-md border border-input bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
               >
                 <option>Lose Weight</option>
@@ -83,6 +123,7 @@ export function Contact() {
             <div>
               <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Message</label>
               <textarea
+                name="message"
                 rows={4}
                 className="mt-1 w-full rounded-md border border-input bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary resize-none"
               />
@@ -90,10 +131,22 @@ export function Contact() {
 
             <button
               type="submit"
-              className="w-full rounded-md bg-gradient-fire px-7 py-4 font-bold uppercase tracking-widest text-primary-foreground shadow-glow-sm transition-transform hover:scale-[1.02]"
+              disabled={status === "sending"}
+              className="w-full rounded-md bg-gradient-fire px-7 py-4 font-bold uppercase tracking-widest text-primary-foreground shadow-glow-sm transition-transform hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed"
             >
-              {sent ? "✓ We'll be in touch" : "Submit & Start"}
+              {buttonLabel}
             </button>
+
+            {status === "success" && (
+              <p className="text-sm text-primary text-center pt-1">
+                We've received your request! Our team will call you back within 24 hours.
+              </p>
+            )}
+            {status === "error" && (
+              <p className="text-sm text-destructive text-center pt-1">
+                Something went wrong. Please try again or call us directly.
+              </p>
+            )}
           </motion.form>
         </div>
       </div>
