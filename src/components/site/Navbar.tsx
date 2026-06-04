@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Flame, Menu, X } from "lucide-react";
+import { Flame, Menu, X, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "@tanstack/react-router";
 
 const links = [
   { href: "#home", label: "Home" },
@@ -52,6 +53,14 @@ export function Navbar() {
           ))}
         </nav>
 
+        <Link
+          to="/admin"
+          className="hidden lg:inline-flex items-center justify-center rounded-md border border-border bg-card px-4 py-2.5 text-sm font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+        >
+          <Shield className="h-4 w-4 mr-2" />
+          Admin
+        </Link>
+
         <a
           href="#pricing"
           className="hidden lg:inline-flex items-center justify-center rounded-md bg-gradient-fire px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-primary-foreground shadow-glow-sm transition-transform hover:scale-105"
@@ -87,6 +96,14 @@ export function Navbar() {
                   {l.label}
                 </a>
               ))}
+              <Link
+                to="/admin"
+                onClick={() => setOpen(false)}
+                className="py-3 text-base uppercase tracking-wider text-foreground border-b border-border/40 flex items-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
               <a
                 href="#pricing"
                 onClick={() => setOpen(false)}
